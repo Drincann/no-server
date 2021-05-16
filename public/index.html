@@ -75,9 +75,7 @@
     <div id="map" style="height:100%;-webkit-transition: all 0.5s ease-in-out;transition: all 0.5s ease-in-out;"></div>
   </div>
   <div id="control">
-    <input type="button" value="获取绘制的覆盖物个数" onclick="alert(overlays.length)" />
-    <input type="button" value="清除所有覆盖物" onclick="clearAll()" />
-    <input type="button" value="提交" onclick="sumbit()" />
+    <input type="button" value="提交" id="submit" onclick="sumbit()" />
   </div>
   <img src="#" alt="" id="result">
   <script type="text/javascript">
@@ -123,11 +121,15 @@
     });
 
     async function sumbit() {
+      if (overlays == null) return
+      document.querySelector('#submit').disabled = true
+      document.querySelector('#submit').value = '正在生成...'
       const { lng: maxlon, lat: maxlat } = overlays.Vu.Dl;
       const { lng: minlon, lat: minlat } = overlays.Vu.Ul;
-      const { data: { data: { NOLevel } } } = await axios.get('/graphql', {
-        params: {
-          query: `
+      try {
+        const { data: { data: { NOLevel } } } = await axios.get('/graphql', {
+          params: {
+            query: `
           query {
             NOLevel (minlat: ${minlat}, maxlat: ${maxlat}, minlon: ${minlon}, maxlon: ${maxlon}, year: 2019, month: 1){
               imgBase64,
@@ -136,15 +138,20 @@
             }
           }
           `
+          }
+        })
+
+        if (NOLevel && NOLevel.code == 0) {
+          document.querySelector('#result').src = `data:image/jpeg;base64,${NOLevel.imgBase64}`;
         }
-      })
-      console.log(overlays)
-
-      console.log(NOLevel)
-      if (NOLevel && NOLevel.code == 0) {
-        document.querySelector('#result').src = `data:image/jpeg;base64,${NOLevel.imgBase64}`;
-
+      } catch (error) {
+        console.log(error);
+        alert('生成失败，请重试')
+      } finally {
+        document.querySelector('#submit').disabled = false
+        document.querySelector('#submit').value = '提交'
       }
+
     }
   </script>
 </body>
