@@ -5,6 +5,27 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: 当前文件",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "--minlat",
+        "35.5",
+        "--maxlat",
+        "37.5",
+        "--minlon",
+        "119.9",
+        "--maxlon",
+        "121.9",
+        "--year",
+        "2019",
+        "--month",
+        "1"
+      ]
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
