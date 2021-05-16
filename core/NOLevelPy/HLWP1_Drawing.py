@@ -77,7 +77,7 @@ def DrawingMini(filename, dataName, lonMin, lonMax, latMin, latMax, cbarticks, s
     cb.ax.tick_params(labelsize=18)
 
     pic_IObytes = io.BytesIO()
-    plt.savefig(savePath, dpi=600, format='jpg')
+    # plt.savefig(savePath, dpi=600, format='jpg')
     plt.savefig(pic_IObytes, dpi=600, format='jpg')
     pic_IObytes.seek(0)
     pic_hash = base64.b64encode(pic_IObytes.read()).decode('ascii')
