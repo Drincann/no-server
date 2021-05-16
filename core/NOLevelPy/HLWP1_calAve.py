@@ -123,7 +123,7 @@ def query(minlat, maxlat, minlon, maxlon, year, month=0):
         # 调用画年分布图的函数
         # 调用一年整个的nc文件，自己改路径吧，文件名YYYY.nc
         filename = resolvePath('./data/' + str(year)+'.nc')
-        dataName = 'E_average'
+        dataName = 'v_average'
         # cbarticks = [-10, -5, 0, 5]
         cbarticks = [0, 0.5, 1, 1.5, 2]
         savePath = resolvePath('./output/' + str(year)+'.png')
@@ -136,7 +136,7 @@ def query(minlat, maxlat, minlon, maxlon, year, month=0):
         # filename = 'F:/06 steam/shuju/step3/uv_output/' + str(year) + '/' + str(year)+str(month).zfill(2)+'.nc'
         filename = resolvePath('./data/' + str(year) +
                                str(month).zfill(2) + '.nc')
-        dataName = 'E_average'
+        dataName = 'v_average'
         # dataName = 'no2'
         # barticks = [-10, -5, 0, 5]
         cbarticks = [0, 0.5, 1, 1.5, 2]
