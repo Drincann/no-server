@@ -11,13 +11,14 @@ import shapefile
 from cartopy.crs import PlateCarree, LambertConformal
 from cartopy._crs import Geodetic
 from matplotlib.ticker import MaxNLocator
-import matplotlib.colorbar as colorbar
+from mpl_toolkits.axes_grid1.colorbar import colorbar
 from netCDF4 import Dataset
 from matplotlib import ticker, cm
 import matplotlib as mpl
 import cartopy.io.shapereader as shpreader
-import base64
 import io
+import base64
+# 控制字体大小，不重要。原来是20，适当调小一些似乎显得图片上档次
 
 
 def resolvePath(relativePath):
@@ -25,12 +26,9 @@ def resolvePath(relativePath):
     return str(path(__file__).parent.absolute().joinpath(relativePath))
 
 
-# 控制字体大小，不重要。原来是20，适当调小一些似乎显得图片上档次
-
-
-def DrawingMini(filename, dataName, lonMin, lonMax, latMin, latMax, cbarticks, savePath):
+def DrawingMini(filename, dataName, lonMin, lonMax, latMin, latMax, cbarticks, savePath, month):
     plt.rcParams.update({'font.size': 15})
-    fig = plt.figure(figsize=(9, 9))
+    fig = plt.figure(figsize=(10, 9))
     ax = fig.add_subplot(111)
     plt.xticks([])
     plt.yticks([])
@@ -41,6 +39,10 @@ def DrawingMini(filename, dataName, lonMin, lonMax, latMin, latMax, cbarticks, s
     data = fh.variables[dataName][:]
     # data=data*10**3
     # data=data*10**3
+    if month != 0:
+        data = data * 2.63 * 0.73461 * (10 ** (-9)) / 3600
+    else:
+        data = data * 10 ** 3
     # data = data * (10 ** -16)
     fh.close()
     nx = data.shape[1]
@@ -52,7 +54,7 @@ def DrawingMini(filename, dataName, lonMin, lonMax, latMin, latMax, cbarticks, s
         resolvePath('./Data_ipynb/cn_province.dbf')).geometries()
     # 绘制中国国界省界九段线等等
     ax.add_geometries(chinaProvince, proj, facecolor='none',
-                      edgecolor='black', linewidth=2, zorder=1)
+                      edgecolor='black', linewidth=1.5, zorder=1)
 
     extent = [lonMin, lonMax, latMin, latMax]
     ax.set_extent(extent, proj)
@@ -70,11 +72,15 @@ def DrawingMini(filename, dataName, lonMin, lonMax, latMin, latMax, cbarticks, s
         lons, lats, data, transform=ccrs.PlateCarree(), cmap=cm.Spectral_r, norm=norm)
     # position=fig.add_axes([0.7, 0.17, 0.15, 0.012])
     # position=fig.add_axes([0.2, 0.05, 0.5, 0.012])
-    cb = plt.colorbar(im, aspect=35, shrink=0.8)  # aspect左右缩进，越小越宽
+    cb = plt.colorbar(im, aspect=35, shrink=0.6)  # aspect左右缩进，越小越宽
     font = {'size': 16, }
     # cb.set_label('×$\mathregular{10^{16}}$ kg/s', fontdict=font)
     cb.set_ticks(cbarticks)
     cb.ax.tick_params(labelsize=18)
+    plt.rcParams['font.sans-serif'] = ['Times New Roman']
+    plt.subplots_adjust(top=1, bottom=0, left=0, right=1.1, hspace=0, wspace=0)
+    plt.margins(0, 0)
+    # plt.savefig(savePath, dpi=600)  # , bbox_inches='tight')
 
     pic_IObytes = io.BytesIO()
     # plt.savefig(savePath, dpi=600, format='jpg')
@@ -84,4 +90,3 @@ def DrawingMini(filename, dataName, lonMin, lonMax, latMin, latMax, cbarticks, s
 
     # plt.show()
     return pic_hash
-   # print('画图完毕')
