@@ -27,11 +27,11 @@ def argvParser():
     except getopt.GetoptError:
         print(
             """
-{
-  "code": 1,
-  "message": "参数解析失败"
-}
-        """
+          {{
+            "code": 1,
+            "message": "参数解析失败"
+          }}
+            """
         )
         sys.exit(0)
     argMap = {}
@@ -58,11 +58,11 @@ try:
 except BaseException as e:
     print(
         """
-    {{
-      "code": 1,
-      "message": "{message}"
-    }}
-  """.format(message=str(e))
+      {{
+        "code": 1,
+        "message": "{message}"
+      }}
+        """.format(message=str(e))
     )
 else:
     print(
@@ -71,5 +71,5 @@ else:
         "code": 0,
         "imgBase64": "{imgBase64}"
       }}
-      """.format(imgBase64=imgBase64)
+        """.format(imgBase64=imgBase64)
     )
