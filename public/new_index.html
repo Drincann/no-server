@@ -100,6 +100,16 @@
 				padding-bottom: 0 !important;
 				border-radius: none !important;
 			}
+			:not(.BMap_CityListCtrl).BMap_noprint.anchorTR::after {
+				content: '';
+				height: 21px;
+				width: 1px;
+				display: inline-block;
+				background-color: #eee;
+				position: absolute;
+				right: -12px;
+				top: 10px;
+			}
 			/* 搜索框 */
 			.search {
 				position: fixed;
@@ -147,6 +157,36 @@
 				border-radius: 0 2px 2px 0;
 				box-shadow: 1px 2px 1px rgba(0, 0, 0, 0.15);
 			}
+			/* 绘图工具 */
+			.draw {
+				content: '';
+				z-index: 2;
+				position: absolute;
+				top: 20px;
+				right: 15px;
+				height: 40px;
+				background-image: url(http://api.map.baidu.com/library/DrawingManager/1.4/src/bg_drawing_tool.png);
+				background-position: -333px -2px;
+				cursor: pointer;
+				width: 50px;
+				background-color: #fff;
+			}
+			.draw-hover {
+				background-position: -333px -54px;
+			}
+
+			/* .BMapLib_Drawing_panel {
+				border-radius: 0 !important;
+			}
+			.BMapLib_Drawing .BMapLib_rectangle {
+				background-position: -333px -2px !important;
+			}
+			.BMapLib_Drawing .BMapLib_rectangle_hover {
+				background-position: -333px -54px !important;
+			}
+			.BMapLib_Drawing .BMapLib_box {
+				width: 50px !important;
+			} */
 		</style>
 		<!-- 引入百度地图 -->
 
@@ -212,6 +252,7 @@
 			></div>
 			<button id="search-button" data-title="搜索" data-tooltip="2"></button>
 		</div>
+		<div class="draw"></div>
 		<script type="text/javascript">
 			// 百度地图API功能
 			// 创建map实例
@@ -235,7 +276,7 @@
 				// 控件的停靠位置（可选，默认左上角）
 				anchor: BMAP_ANCHOR_TOP_RIGHT,
 				// 控件基于停靠位置的偏移量（可选）
-				offset: new BMap.Size(120, 20),
+				offset: new BMap.Size(185, 20),
 			});
 			// 将控件添加到地图上
 			map.addControl(cityControl);
@@ -247,7 +288,7 @@
 			map.addControl(
 				new BMap.MapTypeControl({
 					anchor: BMAP_ANCHOR_TOP_RIGHT,
-					offset: new BMap.Size(20, 20),
+					offset: new BMap.Size(90, 20),
 					mapTypes: [BMAP_NORMAL_MAP, BMAP_SATELLITE_MAP],
 				})
 			);
@@ -355,45 +396,66 @@
 					}
 				});
 			};
-			// 矩形区域
-			// var styleOptions = {
-			// 	strokeColor: 'red', //边线颜色。
-			// 	fillColor: 'red', //填充颜色。当参数为空时，圆形将没有填充效果。
-			// 	strokeWeight: 3, //边线的宽度，以像素为单位。
-			// 	strokeOpacity: 0.8, //边线透明度，取值范围0 - 1。
-			// 	fillOpacity: 0.6, //填充的透明度，取值范围0 - 1。
-			// 	strokeStyle: 'solid', //边线的样式，solid或dashed。
-			// };
-			// //实例化鼠标绘制工具
-			// var overlays = null;
-			// var drawingManager = new BMapLib.DrawingManager(map, {
-			// 	isOpen: false, //是否开启绘制模式
-			// 	enableDrawingTool: true, //是否显示工具栏
-			// 	drawingToolOptions: {
-			// 		anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
-			// 		offset: new BMap.Size(5, 5), //偏离值
-			// 	},
-			// 	// circleOptions: styleOptions, //圆的样式
-			// 	// polylineOptions: styleOptions, //线的样式
-			// 	// polygonOptions: styleOptions, //多边形的样式
-			// 	// rectangleOptions: styleOptions //矩形的样式
-			// });
+			// 矩形区域样式
+			var styleOptions = {
+				strokeColor: '#5E87DB', // 边线颜色
+				fillColor: '#5E87DB', // 填充颜色。当参数为空时，圆形没有填充颜色
+				strokeWeight: 2, // 边线宽度，以像素为单位
+				strokeOpacity: 1, // 边线透明度，取值范围0-1
+				fillOpacity: 0.2, // 填充透明度，取值范围0-1
+				// strokeStyle: 'solid', //边线的样式，solid或dashed。
+			};
 
-			// // 隐藏工具
-			// document
-			// 	.querySelectorAll(
-			// 		'.BMapLib_marker, .BMapLib_circle, .BMapLib_polyline, .BMapLib_polygon'
-			// 	)
-			// 	.forEach((v) => (v.style.display = 'none'));
+			//实例化鼠标绘制工具
+			var overlays = null;
+			var drawingManager = new BMapLib.DrawingManager(map, {
+				isOpen: false, //是否开启绘制模式
+				enableDrawingTool: false, //是否显示工具栏
+				enableSorption: true, // 是否开启边界吸附功能
+				// drawingToolOptions: {
+				// 	anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+				// 	offset: new BMap.Size(15, 20), //偏离值
+				// },
+				circleOptions: styleOptions, //圆的样式
+				polylineOptions: styleOptions, //线的样式
+				polygonOptions: styleOptions, //多边形的样式
+				rectangleOptions: styleOptions, //矩形的样式
+			});
 
-			// // 添加鼠标绘制工具监听事件，用于获取绘制结果
-			// drawingManager.addEventListener('overlaycomplete', function (e) {
-			// 	if (overlays) {
-			// 		map.removeOverlay(overlays);
-			// 	}
-			// 	overlays = e.overlay;
-			// });
+			// 隐藏无用工具
+			document
+				.querySelectorAll(
+					'.BMapLib_marker, .BMapLib_circle, .BMapLib_polyline, .BMapLib_polygon,.BMapLib_hander'
+				)
+				.forEach((v) => (v.style.display = 'none'));
 
+			// 添加鼠标绘制工具监听事件，用于获取绘制结果
+			drawingManager.addEventListener('overlaycomplete', function (e) {
+				if (overlays) {
+					map.removeOverlay(overlays);
+				}
+				overlays = e.overlay;
+			});
+			// 绘图工具点击事件
+			var drawTool = document.querySelector('.draw');
+			drawTool.addEventListener('click', function () {
+				this.classList.toggle('draw-hover');
+				if (this.className.indexOf('draw-hover') !== -1) {
+					console.log(5);
+					var drawingType = BMAP_DRAWING_RECTANGLE;
+					if (
+						drawingManager._isOpen &&
+						drawingManager.getDrawingMode() === drawingType
+					) {
+						drawingManager.close();
+					} else {
+						drawingManager.setDrawingMode(drawingType);
+						drawingManager.open();
+					}
+				} else {
+					drawingManager.close();
+				}
+			});
 			// async function sumbit() {
 			// 	if (overlays == null) return;
 			// 	document.querySelector('#submit').disabled = true;
