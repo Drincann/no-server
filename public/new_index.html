@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<style type="text/css">
+			body,
+			html {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				font-family: '微软雅黑';
+			}
+
+			#allmap {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+
+			#result {
+				width: 100%;
+				font-size: 12px;
+			}
+
+			dl,
+			dt,
+			dd,
+			ul,
+			li {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
+
+			p {
+				font-size: 12px;
+			}
+
+			dt {
+				font-size: 14px;
+				font-family: '微软雅黑';
+				font-weight: bold;
+				border-bottom: 1px dotted #000;
+				padding: 5px 0 5px 5px;
+				margin: 5px 0;
+			}
+
+			dd {
+				padding: 5px 0 0 5px;
+			}
+
+			li {
+				line-height: 28px;
+			}
+			/* 右侧工具栏 */
+			#map::after {
+				content: '';
+				z-index: 1;
+				position: absolute;
+				top: 20px;
+				right: 10px;
+				height: 40px;
+				width: 200px;
+				background-color: #fff;
+				box-shadow: 1px 2px 1px rgba(0, 0, 0, 0.15);
+			}
+			/* 城市列表 */
+			.BMap_CityListCtrl {
+				height: 40px;
+			}
+			.BMap_CityListCtrl::after {
+				content: '';
+				height: 21px;
+				width: 1px;
+				display: inline-block;
+				background-color: #eee;
+				position: absolute;
+				right: -8px;
+				top: 10px;
+			}
+			.BMap_CityListCtrl .ui_city_change {
+				height: 40px;
+			}
+			.BMap_CityListCtrl .ui_city_change a {
+				height: 40px;
+				line-height: 40px;
+				border: none;
+			}
+			.ui_city_change_click a i {
+				top: 22px !important;
+			}
+			/* 地图类型 */
+			:not(.BMap_CityListCtrl).BMap_noprint.anchorTR div {
+				height: 40px;
+				line-height: 40px !important;
+				border: none !important;
+				box-shadow: none !important;
+				padding-top: 0 !important;
+				padding-bottom: 0 !important;
+				border-radius: none !important;
+			}
+			/* 搜索框 */
+			.search {
+				position: fixed;
+				left: 20px;
+				top: 20px;
+				background-color: #fff;
+			}
+			.search #r-result {
+				position: relative;
+				z-index: 2;
+				pointer-events: auto;
+				width: 368px;
+				float: left;
+				box-sizing: border-box;
+				box-shadow: 1px 2px 1px rgba(0, 0, 0, 0.15);
+				width: 368px;
+				border-radius: 2px 0 0 2px;
+				background: #fff;
+			}
+			.search #r-result input {
+				box-sizing: border-box;
+				border: 0;
+				padding: 9px 0;
+				border-left: 10px solid transparent;
+				border-right: 27px solid transparent;
+				line-height: 20px;
+				font-size: 16px;
+				height: 38px;
+				color: #333;
+				position: relative;
+				border-radius: 2px 0 0 2px;
+				float: left;
+				width: 329px !important;
+				outline: 0;
+			}
+			#search-button {
+				pointer-events: auto;
+				background: url(./images/searchbox.png) no-repeat 0 -76px #3385ff;
+				width: 57px;
+				height: 38px;
+				float: left;
+				border: 0;
+				padding: 0;
+				cursor: pointer;
+				border-radius: 0 2px 2px 0;
+				box-shadow: 1px 2px 1px rgba(0, 0, 0, 0.15);
+			}
+		</style>
+		<!-- 引入百度地图 -->
+
+		<script
+			type="text/javascript"
+			src="http://api.map.baidu.com/api?v=2.0&ak=E4805d16520de693a3fe707cdc962045"
+		></script>
+
+		<!--加载鼠标绘制工具-->
+		<script
+			type="text/javascript"
+			src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"
+		></script>
+		<link
+			rel="stylesheet"
+			href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css"
+		/>
+		<!--加载检索信息窗口-->
+		<script
+			type="text/javascript"
+			src="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.js"
+		></script>
+		<link
+			rel="stylesheet"
+			href="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.css"
+		/>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+		<title>地图</title>
+	</head>
+
+	<body>
+		<div id="allmap" style="overflow: hidden; zoom: 1; position: relative">
+			<div
+				id="map"
+				style="
+					height: 100%;
+					-webkit-transition: all 0.5s ease-in-out;
+					transition: all 0.5s ease-in-out;
+				"
+			></div>
+		</div>
+		<div class="tool"></div>
+		<div class="search">
+			<div id="r-result">
+				<input
+					type="text"
+					id="suggestId"
+					size="20"
+					value=""
+					style="width: 150px"
+					placeholder="搜地点"
+				/>
+			</div>
+			<div
+				id="searchResultPanel"
+				style="
+					border: 1px solid #c0c0c0;
+					width: 150px;
+					height: auto;
+					display: none;
+				"
+			></div>
+			<button id="search-button" data-title="搜索" data-tooltip="2"></button>
+		</div>
+		<script type="text/javascript">
+			// 百度地图API功能
+			// 创建map实例
+			var map = new BMap.Map('map');
+			// 设置中心点坐标
+			var poi = new BMap.Point(116.404, 39.915);
+			// 初始化地图，并设置地图级别
+			map.centerAndZoom(poi, 12);
+			// 开启鼠标滚轮缩放
+			map.enableScrollWheelZoom(true);
+			// 缩放控件
+			map.addControl(
+				new BMap.NavigationControl({
+					offset: new BMap.Size(20, 80),
+				})
+			);
+			// 添加比例尺控件
+			map.addControl(new BMap.ScaleControl());
+			// 城市列表
+			var cityControl = new BMap.CityListControl({
+				// 控件的停靠位置（可选，默认左上角）
+				anchor: BMAP_ANCHOR_TOP_RIGHT,
+				// 控件基于停靠位置的偏移量（可选）
+				offset: new BMap.Size(120, 20),
+			});
+			// 将控件添加到地图上
+			map.addControl(cityControl);
+			// 定位
+			map.addControl(
+				new BMap.GeolocationControl({ anchor: BMAP_ANCHOR_BOTTOM_RIGHT })
+			);
+			// 地图类型（卫星图、普通图）
+			map.addControl(
+				new BMap.MapTypeControl({
+					anchor: BMAP_ANCHOR_TOP_RIGHT,
+					offset: new BMap.Size(20, 20),
+					mapTypes: [BMAP_NORMAL_MAP, BMAP_SATELLITE_MAP],
+				})
+			);
+			// 搜索框
+			var ac = new BMap.Autocomplete({ input: 'suggestId', location: map }); //建立一个自动完成的对象
+			function G(id) {
+				return document.getElementById(id);
+			}
+			ac.addEventListener('onhighlight', function (e) {
+				//鼠标放在下拉列表上的事件
+				var str = '';
+				var _value = e.fromitem.value;
+				var value = '';
+				if (e.fromitem.index > -1) {
+					value =
+						_value.province +
+						_value.city +
+						_value.district +
+						_value.street +
+						_value.business;
+				}
+				str =
+					'FromItem<br />index = ' +
+					e.fromitem.index +
+					'<br />value = ' +
+					value;
+
+				value = '';
+				if (e.toitem.index > -1) {
+					_value = e.toitem.value;
+					value =
+						_value.province +
+						_value.city +
+						_value.district +
+						_value.street +
+						_value.business;
+				}
+				str +=
+					'<br />ToItem<br />index = ' +
+					e.toitem.index +
+					'<br />value = ' +
+					value;
+				G('searchResultPanel').innerHTML = str;
+			});
+
+			var myValue;
+			ac.addEventListener('onconfirm', function (e) {
+				//鼠标点击下拉列表后的事件
+				var _value = e.item.value;
+				myValue =
+					_value.province +
+					_value.city +
+					_value.district +
+					_value.street +
+					_value.business;
+				G('searchResultPanel').innerHTML =
+					'onconfirm<br />index = ' +
+					e.item.index +
+					'<br />myValue = ' +
+					myValue;
+
+				setPlace();
+			});
+
+			function setPlace() {
+				map.clearOverlays(); //清除地图上所有覆盖物
+				function myFun() {
+					var pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果
+					map.centerAndZoom(pp, 18);
+					map.addOverlay(new BMap.Marker(pp)); //添加标注
+				}
+				var local = new BMap.LocalSearch(map, {
+					//智能搜索
+					onSearchComplete: myFun,
+				});
+				local.search(myValue);
+			}
+			// 搜索按钮点击事件
+			var searchBut = document.querySelector('#search-button');
+			var searchInput = document.querySelector('#suggestId');
+			searchInput.addEventListener('keydown', function (e) {
+				if (e.keyCode === 13) {
+					e.preventDefault();
+					searchBut.click();
+				}
+			});
+			var local = new BMap.LocalSearch(map, {
+				renderOptions: { map: map },
+			});
+
+			searchBut.addEventListener('click', function () {
+				var value = searchInput.value.trim();
+				if (value.length > 0) {
+					local.search(value);
+				}
+			});
+
+			// 城市列表回车搜索
+			window.onload = function () {
+				var input = document.querySelector('#selCityWd');
+				input.addEventListener('keydown', function (e) {
+					if (e.keyCode === 13) {
+						e.preventDefault();
+						document.querySelector('#selCitySubmit').click();
+					}
+				});
+			};
+			// 矩形区域
+			// var styleOptions = {
+			// 	strokeColor: 'red', //边线颜色。
+			// 	fillColor: 'red', //填充颜色。当参数为空时，圆形将没有填充效果。
+			// 	strokeWeight: 3, //边线的宽度，以像素为单位。
+			// 	strokeOpacity: 0.8, //边线透明度，取值范围0 - 1。
+			// 	fillOpacity: 0.6, //填充的透明度，取值范围0 - 1。
+			// 	strokeStyle: 'solid', //边线的样式，solid或dashed。
+			// };
+			// //实例化鼠标绘制工具
+			// var overlays = null;
+			// var drawingManager = new BMapLib.DrawingManager(map, {
+			// 	isOpen: false, //是否开启绘制模式
+			// 	enableDrawingTool: true, //是否显示工具栏
+			// 	drawingToolOptions: {
+			// 		anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+			// 		offset: new BMap.Size(5, 5), //偏离值
+			// 	},
+			// 	// circleOptions: styleOptions, //圆的样式
+			// 	// polylineOptions: styleOptions, //线的样式
+			// 	// polygonOptions: styleOptions, //多边形的样式
+			// 	// rectangleOptions: styleOptions //矩形的样式
+			// });
+
+			// // 隐藏工具
+			// document
+			// 	.querySelectorAll(
+			// 		'.BMapLib_marker, .BMapLib_circle, .BMapLib_polyline, .BMapLib_polygon'
+			// 	)
+			// 	.forEach((v) => (v.style.display = 'none'));
+
+			// // 添加鼠标绘制工具监听事件，用于获取绘制结果
+			// drawingManager.addEventListener('overlaycomplete', function (e) {
+			// 	if (overlays) {
+			// 		map.removeOverlay(overlays);
+			// 	}
+			// 	overlays = e.overlay;
+			// });
+
+			// async function sumbit() {
+			// 	if (overlays == null) return;
+			// 	document.querySelector('#submit').disabled = true;
+			// 	document.querySelector('#submit').value = '正在生成...';
+			// 	const { lng: maxlon, lat: maxlat } = overlays.Vu.Dl;
+			// 	const { lng: minlon, lat: minlat } = overlays.Vu.Ul;
+			// 	try {
+			// 		const {
+			// 			data: {
+			// 				data: { NOLevel },
+			// 			},
+			// 		} = await axios.get('/graphql', {
+			// 			params: {
+			// 				query: `
+			//     query {
+			//       NOLevel (minlat: ${minlat}, maxlat: ${maxlat}, minlon: ${minlon}, maxlon: ${maxlon}, year: 2019, month: 1){
+			//         imgBase64,
+			//         code,
+			//         message
+			//       }
+			//     }
+			//     `,
+			// 			},
+			// 		});
+
+			// 		if (NOLevel && NOLevel.code == 0) {
+			// 			document.querySelector(
+			// 				'#result'
+			// 			).src = `data:image/jpeg;base64,${NOLevel.imgBase64}`;
+			// 		}
+			// 	} catch (error) {
+			// 		console.log(error);
+			// 		alert('生成失败，请重试');
+			// 	} finally {
+			// 		document.querySelector('#submit').disabled = false;
+			// 		document.querySelector('#submit').value = '提交';
+			// 	}
+			// }
+		</script>
+	</body>
+</html>
