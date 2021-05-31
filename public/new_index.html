@@ -294,6 +294,8 @@
 			// 百度地图API功能
 			// 创建map实例
 			var map = new BMap.Map('map');
+			// 禁用惯性拖拽
+			map.disableInertialDragging();
 			// 设置中心点坐标
 			var poi = new BMap.Point(116.404, 39.915);
 			// 初始化地图，并设置地图级别
@@ -506,6 +508,22 @@
 				}
 				overlays = e.overlay;
 				drawToolBox.classList.add('drawToolBox-hover');
+			});
+			// 拖动地图时，按钮随动
+			var lastX, lastY;
+			map.addEventListener('dragging', function (e) {
+				var x = drawToolBox.style.left.split('px')[0] - 0;
+				var y = drawToolBox.style.top.split('px')[0] - 0;
+				x += lastX ? e.Wa.x - lastX : 0;
+				y += lastY ? e.Wa.y - lastY : 0;
+				drawToolBox.style.top = y + 'px';
+				drawToolBox.style.left = x + 'px';
+				lastX = e.Wa.x;
+				lastY = e.Wa.y;
+				console.log(x, y);
+			});
+			map.addEventListener('dragend', function (e) {
+				lastX = lastY = 0;
 			});
 			// 绘图完成后，点击工具按键进行相应动作
 			drawToolBoxNo.addEventListener('click', function () {
