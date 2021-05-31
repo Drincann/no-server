@@ -61,7 +61,7 @@
 				top: 20px;
 				right: 10px;
 				height: 40px;
-				width: 200px;
+				width: 240px;
 				background-color: #fff;
 				box-shadow: 1px 2px 1px rgba(0, 0, 0, 0.15);
 			}
@@ -174,7 +174,40 @@
 			.draw-hover {
 				background-position: -333px -54px;
 			}
-
+			.drawToolBox {
+				position: fixed;
+				top: 0;
+				right: 50%;
+				width: 150px;
+				height: 30px;
+				/* background-color: #3385ff; */
+				overflow: hidden;
+				display: none;
+			}
+			.drawToolBox.drawToolBox-hover {
+				display: block;
+			}
+			.drawToolBox .yes {
+				float: right;
+				width: 50px;
+				height: 30px;
+				background: #fff url(./images/yes.png) no-repeat top center;
+				background-size: contain;
+				box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+				border-radius: 2px;
+				cursor: pointer;
+			}
+			.drawToolBox .no {
+				float: left;
+				margin-left: 25px;
+				width: 50px;
+				height: 30px;
+				background: #fff url(./images/no.png) no-repeat top center;
+				background-size: contain;
+				box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+				border-radius: 2px;
+				cursor: pointer;
+			}
 			/* .BMapLib_Drawing_panel {
 				border-radius: 0 !important;
 			}
@@ -253,6 +286,10 @@
 			<button id="search-button" data-title="搜索" data-tooltip="2"></button>
 		</div>
 		<div class="draw"></div>
+		<div class="drawToolBox">
+			<div class="yes"></div>
+			<div class="no"></div>
+		</div>
 		<script type="text/javascript">
 			// 百度地图API功能
 			// 创建map实例
@@ -429,19 +466,23 @@
 				)
 				.forEach((v) => (v.style.display = 'none'));
 
-			// 添加鼠标绘制工具监听事件，用于获取绘制结果
-			drawingManager.addEventListener('overlaycomplete', function (e) {
-				if (overlays) {
-					map.removeOverlay(overlays);
-				}
-				overlays = e.overlay;
-			});
 			// 绘图工具点击事件
 			var drawTool = document.querySelector('.draw');
+			var thismap = document.querySelector('#map');
+			var drawToolBox = document.querySelector('.drawToolBox');
+			var drawToolBoxYes = document.querySelector('.drawToolBox .yes');
+			var drawToolBoxNo = document.querySelector('.drawToolBox .no');
+			var drawFun = function (e) {
+				drawToolBox.style.top = e.y + 'px';
+				drawToolBox.style.left = e.x + 'px';
+			};
 			drawTool.addEventListener('click', function () {
+				// 类名切换,改变样式
 				this.classList.toggle('draw-hover');
+
 				if (this.className.indexOf('draw-hover') !== -1) {
-					console.log(5);
+					// map.removeEventListener('mouseup', drawFun);
+					thismap.addEventListener('mouseup', drawFun);
 					var drawingType = BMAP_DRAWING_RECTANGLE;
 					if (
 						drawingManager._isOpen &&
@@ -454,46 +495,65 @@
 					}
 				} else {
 					drawingManager.close();
+					thismap.removeEventListener('mouseup', drawFun);
 				}
 			});
-			// async function sumbit() {
-			// 	if (overlays == null) return;
-			// 	document.querySelector('#submit').disabled = true;
-			// 	document.querySelector('#submit').value = '正在生成...';
-			// 	const { lng: maxlon, lat: maxlat } = overlays.Vu.Dl;
-			// 	const { lng: minlon, lat: minlat } = overlays.Vu.Ul;
-			// 	try {
-			// 		const {
-			// 			data: {
-			// 				data: { NOLevel },
-			// 			},
-			// 		} = await axios.get('/graphql', {
-			// 			params: {
-			// 				query: `
-			//     query {
-			//       NOLevel (minlat: ${minlat}, maxlat: ${maxlat}, minlon: ${minlon}, maxlon: ${maxlon}, year: 2019, month: 1){
-			//         imgBase64,
-			//         code,
-			//         message
-			//       }
-			//     }
-			//     `,
-			// 			},
-			// 		});
+			// 绘制完成，删除上一个
+			drawingManager.addEventListener('overlaycomplete', function (e) {
+				if (overlays) {
+					map.removeOverlay(overlays);
+					drawToolBox.classList.remove('drawToolBox-hover');
+				}
+				overlays = e.overlay;
+				drawToolBox.classList.add('drawToolBox-hover');
+			});
+			// 绘图完成后，点击工具按键进行相应动作
+			drawToolBoxNo.addEventListener('click', function () {
+				drawToolBox.classList.remove('drawToolBox-hover');
+				map.removeOverlay(overlays);
+			});
+			drawToolBoxYes.addEventListener('click', function () {
+				sumbit();
+			});
 
-			// 		if (NOLevel && NOLevel.code == 0) {
-			// 			document.querySelector(
-			// 				'#result'
-			// 			).src = `data:image/jpeg;base64,${NOLevel.imgBase64}`;
-			// 		}
-			// 	} catch (error) {
-			// 		console.log(error);
-			// 		alert('生成失败，请重试');
-			// 	} finally {
-			// 		document.querySelector('#submit').disabled = false;
-			// 		document.querySelector('#submit').value = '提交';
-			// 	}
-			// }
+			async function sumbit() {
+				if (overlays == null) return;
+				document.querySelector('#submit').disabled = true;
+				document.querySelector('#submit').value = '正在生成...';
+				const { lng: maxlon, lat: maxlat } = overlays.Vu.Dl;
+				const { lng: minlon, lat: minlat } = overlays.Vu.Ul;
+				try {
+					const {
+						data: {
+							data: { NOLevel },
+						},
+					} = await axios.get('/graphql', {
+						params: {
+							query: `
+			    query {
+			      NOLevel (minlat: ${minlat}, maxlat: ${maxlat}, minlon: ${minlon}, maxlon: ${maxlon}, year: 2019, month: 1){
+			        imgBase64,
+			        code,
+			        message
+			      }
+			    }
+			    `,
+						},
+					});
+
+					if (NOLevel && NOLevel.code == 0) {
+						document.querySelector(
+							'#result'
+						).src = `data:image/jpeg;base64,${NOLevel.imgBase64}`;
+					}
+				} catch (error) {
+					console.log(error);
+					alert('生成失败，请重试');
+				} finally {
+					document.querySelector('#submit').disabled = false;
+					document.querySelector('#submit').value = '提交';
+				}
+			}
 		</script>
 	</body>
 </html>
