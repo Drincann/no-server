@@ -208,6 +208,272 @@
 				border-radius: 2px;
 				cursor: pointer;
 			}
+			/* 图片展示 */
+			.imgBox {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 50%;
+				height: 70%;
+				border-radius: 10px;
+				box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+				background-color: #fff;
+				display: none;
+			}
+			.imgBox.imgBox-hover {
+				display: block;
+			}
+			.imgBox img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+			.imgBox.loading img {
+				filter: blur(100px);
+			}
+			.imgBox #download {
+				position: absolute;
+				bottom: 15px;
+				left: 50%;
+				transform: translateX(-50%);
+				height: 50px;
+				background-color: #3385ff;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #fff;
+				background-color: #409eff;
+				display: inline-block;
+				line-height: 1;
+				white-space: nowrap;
+				cursor: pointer;
+				border: 1px solid #dcdfe6;
+				border-color: #409eff;
+				-webkit-appearance: none;
+				text-align: center;
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+				outline: 0;
+				margin: 0;
+				-webkit-transition: 0.1s;
+				transition: 0.1s;
+				font-weight: 500;
+				padding: 12px 20px;
+				font-size: 14px;
+				border-radius: 4px;
+			}
+			.imgBox #close {
+				z-index: 1;
+				position: absolute;
+				top: 20px;
+				right: 20px;
+				width: 30px;
+				height: 30px;
+				background-color: rgba(0, 0, 0, 0.15);
+				border: none;
+				border-radius: 50%;
+				text-align: center;
+				line-height: 30px;
+				cursor: pointer;
+				outline: none;
+			}
+			.imgBox #close:hover {
+				background-color: rgba(0, 0, 0, 0.3);
+			}
+
+			.imgBox .loadingBox {
+				position: absolute;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				justify-content: center;
+				align-items: center;
+				display: none;
+			}
+			.imgBox.loading .loadingBox {
+				display: flex;
+			}
+			.container {
+				width: 30px;
+				height: 30px;
+				/* background-color: #040038; */
+				position: absolute;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			.container.animation-4 {
+				-webkit-transform: rotate(10deg);
+				transform: rotate(10deg);
+			}
+
+			.container.animation-4 .shape {
+				border-radius: 5px;
+			}
+
+			.container.animation-4 {
+				-webkit-animation: rotation 1s infinite;
+				animation: rotation 1s infinite;
+			}
+
+			.container .shape {
+				position: absolute;
+				width: 10px;
+				height: 10px;
+				border-radius: 1px;
+			}
+
+			.container .shape.shape1 {
+				left: 0;
+				background-color: #5c6bc0;
+			}
+
+			.container .shape.shape2 {
+				right: 0;
+				background-color: #8bc34a;
+			}
+
+			.container .shape.shape3 {
+				bottom: 0;
+				background-color: #ffb74d;
+			}
+
+			.container .shape.shape4 {
+				bottom: 0;
+				right: 0;
+				background-color: #f44336;
+			}
+
+			@-webkit-keyframes rotation {
+				from {
+					-webkit-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				to {
+					-webkit-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+
+			@keyframes rotation {
+				from {
+					-webkit-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				to {
+					-webkit-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+
+			.animation-4 .shape1 {
+				-webkit-animation: animation4shape1 0.3s ease 0s infinite alternate;
+				animation: animation4shape1 0.3s ease 0s infinite alternate;
+			}
+
+			@-webkit-keyframes animation4shape1 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(5px, 5px);
+					transform: translate(5px, 5px);
+				}
+			}
+
+			@keyframes animation4shape1 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(5px, 5px);
+					transform: translate(5px, 5px);
+				}
+			}
+
+			.animation-4 .shape2 {
+				-webkit-animation: animation4shape2 0.3s ease 0.3s infinite alternate;
+				animation: animation4shape2 0.3s ease 0.3s infinite alternate;
+			}
+
+			@-webkit-keyframes animation4shape2 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(-5px, 5px);
+					transform: translate(-5px, 5px);
+				}
+			}
+
+			@keyframes animation4shape2 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(-5px, 5px);
+					transform: translate(-5px, 5px);
+				}
+			}
+
+			.animation-4 .shape3 {
+				-webkit-animation: animation4shape3 0.3s ease 0.3s infinite alternate;
+				animation: animation4shape3 0.3s ease 0.3s infinite alternate;
+			}
+
+			@-webkit-keyframes animation4shape3 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(5px, -5px);
+					transform: translate(5px, -5px);
+				}
+			}
+
+			@keyframes animation4shape3 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(5px, -5px);
+					transform: translate(5px, -5px);
+				}
+			}
+
+			.animation-4 .shape4 {
+				-webkit-animation: animation4shape4 0.3s ease 0s infinite alternate;
+				animation: animation4shape4 0.3s ease 0s infinite alternate;
+			}
+
+			@-webkit-keyframes animation4shape4 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(-5px, -5px);
+					transform: translate(-5px, -5px);
+				}
+			}
+
+			@keyframes animation4shape4 {
+				from {
+					-webkit-transform: translate(0, 0);
+					transform: translate(0, 0);
+				}
+				to {
+					-webkit-transform: translate(-5px, -5px);
+					transform: translate(-5px, -5px);
+				}
+			}
 			/* .BMapLib_Drawing_panel {
 				border-radius: 0 !important;
 			}
@@ -289,6 +555,19 @@
 		<div class="drawToolBox">
 			<div class="yes"></div>
 			<div class="no"></div>
+		</div>
+		<div class="imgBox">
+			<img src="./images/nodata.png" id="result" />
+			<button id="download">保存到本地</button>
+			<button id="close">X</button>
+			<div class="loadingBox">
+				<div class="container animation-4">
+					<div class="shape shape1"></div>
+					<div class="shape shape2"></div>
+					<div class="shape shape3"></div>
+					<div class="shape shape4"></div>
+				</div>
+			</div>
 		</div>
 		<script type="text/javascript">
 			// 百度地图API功能
@@ -531,15 +810,34 @@
 				map.removeOverlay(overlays);
 			});
 			drawToolBoxYes.addEventListener('click', function () {
+				imgBox.classList.add('imgBox-hover');
 				sumbit();
+			});
+			// 图片展示
+			var imgBox = document.querySelector('.imgBox');
+			var imgDownload = document.querySelector('.imgBox #download');
+			var imgClose = document.querySelector('.imgBox #close');
+			var img = document.querySelector('.imgBox img');
+			imgClose.addEventListener('click', function () {
+				imgBox.classList.remove('imgBox-hover');
+			});
+			imgDownload.addEventListener('click', function () {
+				let a = document.createElement('a');
+				a.download = 'result';
+				// 仅支持同源链接下载，非同源链接会直接打开图片预览
+				a.href = img.src;
+				a.click();
+				a.remove();
 			});
 
 			async function sumbit() {
 				if (overlays == null) return;
-				document.querySelector('#submit').disabled = true;
-				document.querySelector('#submit').value = '正在生成...';
+				drawToolBox.classList.remove('drawToolBox-hover');
+				imgBox.classList.add('loading');
 				const { lng: maxlon, lat: maxlat } = overlays.Vu.Dl;
 				const { lng: minlon, lat: minlat } = overlays.Vu.Ul;
+				map.removeOverlay(overlays);
+
 				try {
 					const {
 						data: {
@@ -548,28 +846,26 @@
 					} = await axios.get('/graphql', {
 						params: {
 							query: `
-			    query {
-			      NOLevel (minlat: ${minlat}, maxlat: ${maxlat}, minlon: ${minlon}, maxlon: ${maxlon}, year: 2019, month: 1){
-			        imgBase64,
-			        code,
-			        message
-			      }
-			    }
-			    `,
+				  query {
+				    NOLevel (minlat: ${minlat}, maxlat: ${maxlat}, minlon: ${minlon}, maxlon: ${maxlon}, year: 2019, month: 1){
+				      imgBase64,
+				      code,
+				      message
+				    }
+				  }
+				  `,
 						},
 					});
 
 					if (NOLevel && NOLevel.code == 0) {
-						document.querySelector(
-							'#result'
-						).src = `data:image/jpeg;base64,${NOLevel.imgBase64}`;
+						img.src = `data:image/jpeg;base64,${NOLevel.imgBase64}`;
 					}
 				} catch (error) {
 					console.log(error);
 					alert('生成失败，请重试');
+					img.src = './images/nodata.png';
 				} finally {
-					document.querySelector('#submit').disabled = false;
-					document.querySelector('#submit').value = '提交';
+					imgBox.classList.remove('loading');
 				}
 			}
 		</script>
