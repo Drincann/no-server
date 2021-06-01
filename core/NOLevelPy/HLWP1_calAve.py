@@ -51,8 +51,9 @@ def binary_search(arr, x):
 
 
 def calAve(minlon, maxlon, minlat, maxlat):
-    # path = "F:/06 steam/shuju/step3/uv_output/"+str(year)
-    path = resolvePath("./data")
+ # path = "F:/06 steam/shuju/step3/uv_output/"+str(year)
+    # path = "F:/06 steam/shuju/step3/uv_output"
+    path = resolvePath('./data')
     files = os.listdir(path)
     files.sort()
     lat = []
@@ -71,37 +72,53 @@ def calAve(minlon, maxlon, minlat, maxlat):
     # 读取进来经纬度范围、时间。
     # 如果月份==0，则代表只输了年份：每个月区域都需要算。（也就是这个代码来实现折线图的预备处理）
     # 否则：只需作出分布图来
-    posminLat = binary_search(lat, minlat)
-    posmaxLat = binary_search(lat, maxlat)
-    posminLon = binary_search(lon, minlon)
-    posmaxLon = binary_search(lon, maxlon)
+    posminLat = binary_search(lat[:, 0], minlat)
+    posmaxLat = binary_search(lat[:, 0], maxlat)
+    posminLon = binary_search(lon[0], minlon)
+    posmaxLon = binary_search(lon[0], maxlon)
+    # print(lat[:,0])
+    # print(lon[0])
+    # print(minlat,maxlat,minlon,maxlon)
+    # print(posminLat,posmaxLat,posminLon,posmaxLon)
     ave = []
+
     # 用切片亦可
     for k in range(len(files)):
         cnt = 0
         avetmp = 0
-        for i in range(posminLat, posmaxLat+1):
-            for j in range(posminLon, posmaxLon+1):
+        ave.append(np.sum(E[k][posminLat:posmaxLat + 1, posminLon:posmaxLon + 1]
+                          )/((posmaxLat + 1-posminLat)*(posmaxLon + 1-posminLon)))
+        # print(E[k][posminLat:posmaxLat + 1, posminLon:posmaxLon + 1].shape)
+        # print(np.sum(E[k][posminLat:posmaxLat + 1, posminLon:posmaxLon + 1]))
+        '''
+        for i in range(posminLat,posmaxLat+1):
+            for j in range(posminLon,posmaxLon+1):
                 if np.isnan(E[k][i][j]):
                     continue
-                cnt += 1
-                avetmp += E[k][i][j]
-        avetmp /= cnt
+                cnt+=1
+                avetmp+=E[k][i][j]
+        avetmp/=cnt
         ave.append(avetmp)
+        '''
     return ave
 
 
 def plotMonthE(y_axis_data, savepath, year):
     x_axis_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    # x_axis_data=[1,2,3,4,5,6]
     plt.figure(figsize=(2.8565354, 2.7791732))
     # plot中参数的含义分别是横轴值，纵轴值，线的形状，颜色，线的宽度和标签
+    print(y_axis_data)
+    y_axis_data = np.array(y_axis_data) * (10 ** (-8))*2.63 * 0.73461 / 3600
+    print(y_axis_data)
     plt.plot(x_axis_data, y_axis_data, 'x-', color='#000000', linewidth=1)
     plt.rcParams['font.sans-serif'] = ['Times New Roman']
     plt.xticks(fontsize=8)
     plt.yticks(fontsize=8)
     plt.xticks(x_axis_data)  # 设置横坐标刻度为给定的月份
-    plt.ylim([0, 40])  # 设置纵坐标轴范围
-    plt.savefig(savepath + '/' + str(year) + '.jpg', dpi=1200)  # 保存该图片
+    plt.ylim([0, 4])  # 设置纵坐标轴范围
+    plt.savefig(savepath + '/' + str(year) + '.jpg',
+                dpi=1200, bbox_inches='tight')  # 保存该图片
     plt.clf()
 
 
@@ -117,30 +134,30 @@ def query(minlat, maxlat, minlon, maxlon, year, month=0):
         ave = calAve(minlon, maxlon, minlat, maxlat)
         # ave=[15,17,25,2,22,14,5,20,39,11,33,16]
         # 调用画折线图的函数
-        savepath = resolvePath('./output')
+        savepath = 'G:/00 SC/HLWPoutput'
         plotMonthE(ave, savepath, year)
 
         # 调用画年分布图的函数
         # 调用一年整个的nc文件，自己改路径吧，文件名YYYY.nc
-        filename = resolvePath('./data/' + str(year)+'.nc')
+        filename = resolvePath('./data/'+str(year)+'.nc')
         dataName = 'v_average'
         # cbarticks = [-10, -5, 0, 5]
         cbarticks = [0, 0.5, 1, 1.5, 2]
-        savePath = resolvePath('./output/' + str(year)+'.png')
+        savePath = 'G:/00 SC/HLWPoutput/'+str(year)+'.png'
         return HLWP1_Drawing.DrawingMini(
-            filename, dataName, minlon, maxlon, minlat, maxlat, cbarticks, savePath)
+            filename, dataName, minlon, maxlon, minlat, maxlat, cbarticks, savePath, month)
 
     else:
         # 调用画某月份图分布图的函数
         # 调用某个月的nc文件，自己改路径吧。文件名YYYYMM.nc
         # filename = 'F:/06 steam/shuju/step3/uv_output/' + str(year) + '/' + str(year)+str(month).zfill(2)+'.nc'
         filename = resolvePath('./data/' + str(year) +
-                               str(month).zfill(2) + '.nc')
+                               str(month).zfill(2)+'.nc')
+        # dataName = 'v_average'
         dataName = 'v_average'
-        # dataName = 'no2'
-        # barticks = [-10, -5, 0, 5]
-        cbarticks = [0, 0.5, 1, 1.5, 2]
-        savePath = resolvePath('./output/' + str(year) +
-                               str(month).zfill(2)+'.png')
+        # cbarticks = [-10, -5, 0, 5]
+        cbarticks = [0, 1,  2, 3, 4]
+        savePath = 'G:/00 SC/HLWPoutput/' + \
+            str(year) + str(month).zfill(2)+'.png'
         return HLWP1_Drawing.DrawingMini(
-            filename, dataName, minlon, maxlon, minlat, maxlat, cbarticks, savePath)
+            filename, dataName, minlon, maxlon, minlat, maxlat, cbarticks, savePath, month)

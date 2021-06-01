@@ -474,6 +474,18 @@
 					transform: translate(-5px, -5px);
 				}
 			}
+			/* .BMapLib_Drawing_panel {
+				border-radius: 0 !important;
+			}
+			.BMapLib_Drawing .BMapLib_rectangle {
+				background-position: -333px -2px !important;
+			}
+			.BMapLib_Drawing .BMapLib_rectangle_hover {
+				background-position: -333px -54px !important;
+			}
+			.BMapLib_Drawing .BMapLib_box {
+				width: 50px !important;
+			} */
 		</style>
 		<!-- 引入百度地图 -->
 
@@ -825,6 +837,7 @@
 				const { lng: maxlon, lat: maxlat } = overlays.Vu.Dl;
 				const { lng: minlon, lat: minlat } = overlays.Vu.Ul;
 				map.removeOverlay(overlays);
+
 				try {
 					const {
 						data: {
